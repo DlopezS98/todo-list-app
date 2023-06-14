@@ -1,32 +1,39 @@
-import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
 import { StripeService } from 'ngx-stripe';
-import { switchMap } from 'rxjs';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+
+import CustomStripeService from 'src/app/shared/services/stripe.service';
+import StripeProductModel from 'src/app/shared/models/stripe-product.model';
 
 @Component({
   templateUrl: './subscriptions.component.html',
   styleUrls: ['./subscriptions.component.scss']
 })
-export default class SubscriptionsComponent {
-  private readonly baseUrl = 'http://localhost:3000/stripe'
-  constructor(private http: HttpClient, private stripeService: StripeService) { }
+export default class SubscriptionsComponent implements OnInit {
+  public products: StripeProductModel[] = [];
+  
+  constructor(
+    private readonly cdRef: ChangeDetectorRef,
+    private readonly stripeService: StripeService,
+    private readonly customStripeService: CustomStripeService,
+  ) { }
 
-  checkout(priceId: string) {
-    // Check the server.js tab to see an example implementation
-    this.http.post(`${this.baseUrl}/create-checkout-session`, { priceId })
-      .pipe(
-        switchMap(session => {
-          //@ts-ignore
-          return this.stripeService.redirectToCheckout({ sessionId: session.id })
-        })
-      )
-      .subscribe(result => {
-        // If `redirectToCheckout` fails due to a browser or network
-        // error, you should display the localized error message to your
-        // customer using `error.message`.
-        if (result.error) {
-          alert(result.error.message);
-        }
-      });
+  ngOnInit(): void {
+    this.loadProducts();
+  }
+
+  async loadProducts(): Promise<void> {
+    const products = await this.customStripeService.getProducts();
+    this.products = products.map(StripeProductModel.fromStripeProduct);
+    this.cdRef.detectChanges();
+  }
+
+  async checkout(priceId: string): Promise<void> {
+    if (!priceId) return;
+
+    const checkoutSession = await this.customStripeService.createCheckoutSession(priceId);
+    if (!checkoutSession) return;
+
+    await this.stripeService.redirectToCheckout({ sessionId: checkoutSession.sessionId }).toPromise();
+    console.log(checkoutSession);
   }
 }
