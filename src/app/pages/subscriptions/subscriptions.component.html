@@ -1,4 +1,4 @@
-<div class="container mt-5">
+<!-- <div class="container mt-5">
     <div class="row">
         <div class="col-md-3">
             <div class="card card-sidebar-information">
@@ -23,7 +23,6 @@
                                 <h5>{{ product.name }}</h5>
                                 <h6>${{ product.price }} / {{ product.interval }}</h6>
                                 <hr>
-                                <!-- <h6></h6> -->
                                 <p class="text-justify">{{ product.description }}</p>
                                 <div>
                                     <h6>Features</h6>
@@ -45,4 +44,16 @@
             </div>
         </div>
     </div>
+</div> -->
+
+<div class="container mt-5">
+  <div class="card">
+    <div class="card-body">
+      <stripe-pricing-table
+        [attr.client-reference-id]="clientReferenceId"
+        [attr.pricing-table-id]="pricingTableId"
+        [attr.publishable-key]="publishableKey">
+      </stripe-pricing-table>
+    </div>
+  </div>
 </div>

@@ -10,6 +10,9 @@ import StripeProductModel from 'src/app/shared/models/stripe-product.model';
 })
 export default class SubscriptionsComponent implements OnInit {
   public products: StripeProductModel[] = [];
+  clientReferenceId: string = '';
+  pricingTableId: string = '';
+  publishableKey: string = ''
   
   constructor(
     private readonly cdRef: ChangeDetectorRef,
@@ -34,6 +37,5 @@ export default class SubscriptionsComponent implements OnInit {
     if (!checkoutSession) return;
 
     await this.stripeService.redirectToCheckout({ sessionId: checkoutSession.sessionId }).toPromise();
-    console.log(checkoutSession);
   }
 }
